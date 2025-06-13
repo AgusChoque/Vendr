@@ -1,0 +1,26 @@
+enum EmployeeRole {
+  OWNER
+  MANAGER
+  CASHIER
+  DELIVERY
+}
+
+model Employee {
+  id           String       @id @default(uuid())
+  user_id      String
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  business_id  String
+  business     Business     @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  role         EmployeeRole
+  created_at   DateTime     @default(now()) @db.Date
+  updated_at   DateTime     @updatedAt
+  deleted_at   DateTime?    @db.Date
+  is_active    Boolean      @default(true) @db.Boolean
+  is_suspended Boolean      @default(false) @db.Boolean
+
+  branches        EmployeesOnBranches[]
+  stockMovements  StockMovement[]
+  ordersProcessed Order[]               @relation("OrderProcessor")
+  ordersDelivered Order[]               @relation("OrderDeliverer")
+  ordersHistory   OrderStatusHistory[]
+}

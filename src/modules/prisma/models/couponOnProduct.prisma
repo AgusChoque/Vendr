@@ -1,0 +1,8 @@
+model CouponOnProduct {
+  id         String   @id @default(uuid())
+  coupon_id  String
+  coupon     Coupon   @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  product_id String
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now()) @db.Date
+}

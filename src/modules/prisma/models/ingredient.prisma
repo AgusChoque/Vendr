@@ -1,0 +1,14 @@
+model Ingredient {
+  id              String    @id @default(uuid())
+  name            String    @db.VarChar(80)
+  stock_quantity  Decimal   @db.Decimal(10, 2)
+  unit            String    @db.VarChar(25)
+  min_stock_alert Decimal   @db.Decimal(10, 2)
+  created_at      DateTime  @default(now()) @db.Date
+  updated_at      DateTime  @updatedAt
+  deleted_at      DateTime? @db.Date
+  is_active       Boolean   @default(true) @db.Boolean
+
+  recipes        Recipe[]
+  stockMovements StockMovement[]
+}

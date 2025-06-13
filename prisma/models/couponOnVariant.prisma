@@ -1,8 +1,0 @@
-model CouponOnVariant {
-  id         String           @id @default(uuid())
-  coupon_id  String           @db.Uuid
-  coupon     Coupon           @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
-  variant_id String           @db.Uuid
-  variant    ProductVariation @relation(fields: [variant_id], references: [id], onDelete: Cascade)
-  created_at DateTime         @default(now()) @db.Date
-}

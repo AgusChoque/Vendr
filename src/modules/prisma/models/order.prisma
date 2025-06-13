@@ -1,0 +1,63 @@
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY_FOR_DELIVERY
+  DELIVERED
+  CANCELLED_BY_CUSTOMER
+  CANCELLED_BY_BUSINESS
+  CANCELLED_BY_SYSTEM
+  CANCELLED_BY_DELIVERY
+  CANCELLED_BY_OTHER
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  REFUNDED
+  CANCELLED
+}
+
+model Order {
+  id                            String        @id @default(uuid())
+  customer_id                   String?
+  customer                      User?         @relation(fields: [customer_id], references: [id], onDelete: SetNull)
+  branch_id                     String?
+  branch                        Branch?       @relation(fields: [branch_id], references: [id], onDelete: SetNull)
+  delivery_address_id           String?
+  delivery_address              UserAddress?  @relation(fields: [delivery_address_id], references: [id], onDelete: SetNull)
+  processed_by_id               String
+  processed_by                  Employee      @relation("OrderProcessor", fields: [processed_by_id], references: [id])
+  delivery_by_id                String?
+  delivery_by                   Employee?     @relation("OrderDeliverer", fields: [delivery_by_id], references: [id])
+  items                         OrderItem[]
+  status                        OrderStatus   @default(PENDING)
+  is_delivery                   Boolean       @db.Boolean
+  sub_total                     Decimal       @db.Decimal(10, 2)
+  discount_amount               Decimal?      @db.Decimal(10, 2)
+  delivery_fee                  Decimal?      @db.Decimal(10, 2)
+  total_amount                  Decimal       @db.Decimal(10, 2)
+  cash_amount                   Decimal?      @db.Decimal(10, 2)
+  change_amount                 Decimal?      @db.Decimal(10, 2)
+  estimated_preparation_minutes Int           @db.Integer
+  estimated_delivery_minutes    Int           @db.Integer
+  estimated_ready_time          DateTime      @db.Time()
+  customer_notes                String?       @db.Text
+  payment_method                PaymentMethod
+  payment_status                PaymentStatus @default(PENDING)
+  created_at                    DateTime      @default(now()) @db.Date
+  updated_at                    DateTime      @updatedAt
+  deleted_at                    DateTime?     @db.Date
+  is_active                     Boolean       @default(true) @db.Boolean
+
+  coupons       CouponForOrder[]
+  statusHistory OrderStatusHistory[]
+}
