@@ -1,0 +1,24 @@
+model Branch {
+  id               String    @id @default(uuid())
+  business_id      String
+  business         Business  @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  adress_id        String
+  adress           Adress    @relation(fields: [adress_id], references: [id])
+  name             String    @db.VarChar(100)
+  phone            String?   @db.VarChar(15)
+  description      String?   @db.Text
+  delivery_polygon Json?     @db.Json
+  created_at       DateTime  @default(now()) @db.Date
+  updated_at       DateTime  @updatedAt
+  deleted_at       DateTime? @db.Date
+  is_active        Boolean   @default(true) @db.Boolean
+  is_suspended     Boolean   @default(false) @db.Boolean
+
+  employees      EmployeesOnBranches[]
+  categories     Category[]
+  schedules      Schedule[]
+  specialDates   SpecialDate[]
+  stockMovements StockMovement[]
+  coupons        CouponForBranch[]
+  orders         Order[]
+}

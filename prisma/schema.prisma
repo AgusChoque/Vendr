@@ -1,5 +1,7 @@
 //******** AUTO GENERATED FILE, DO NOT EDIT.  *********
 
+//******** AUTO GENERATED FILE, DO NOT EDIT.  *********
+
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -8,4 +10,585 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+
+model Adress {
+  id          String   @id @default(uuid())
+  street      String   @db.VarChar(150)
+  city        String   @db.VarChar(80)
+  state       String   @db.VarChar(80)
+  country     String   @db.VarChar(80)
+  postal_code String   @db.VarChar(15)
+  latitude    Decimal  @db.Decimal(8, 6)
+  longitude   Decimal  @db.Decimal(9, 6)
+  created_at  DateTime @default(now()) @db.Date
+  updated_at  DateTime @updatedAt
+
+  userAddress UserAddress[]
+  business    Business[]
+  branch      Branch[]
+}
+
+
+model Branch {
+  id               String    @id @default(uuid())
+  business_id      String
+  business         Business  @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  adress_id        String
+  adress           Adress    @relation(fields: [adress_id], references: [id])
+  name             String    @db.VarChar(100)
+  phone            String?   @db.VarChar(15)
+  description      String?   @db.Text
+  delivery_polygon Json?     @db.Json
+  created_at       DateTime  @default(now()) @db.Date
+  updated_at       DateTime  @updatedAt
+  deleted_at       DateTime? @db.Date
+  is_active        Boolean   @default(true) @db.Boolean
+  is_suspended     Boolean   @default(false) @db.Boolean
+
+  employees      EmployeesOnBranches[]
+  categories     Category[]
+  schedules      Schedule[]
+  specialDates   SpecialDate[]
+  stockMovements StockMovement[]
+  coupons        CouponForBranch[]
+  orders         Order[]
+}
+
+
+model Business {
+  id                 String    @id @default(uuid())
+  owner_id           String
+  owner              User      @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  adress_id          String?
+  adress             Adress?   @relation(fields: [adress_id], references: [id], onDelete: SetNull)
+  name               String    @db.VarChar(100)
+  description        String?   @db.Text
+  phone              String?   @db.VarChar(15)
+  logo               Json?     @db.Json
+  delivery_available Boolean   @default(false) @db.Boolean
+  created_at         DateTime  @default(now()) @db.Date
+  updated_at         DateTime  @updatedAt
+  deleted_at         DateTime? @db.Date
+  is_active          Boolean   @default(true) @db.Boolean
+  is_suspended       Boolean   @default(false) @db.Boolean
+
+  employees Employee[]
+  branches  Branch[]
+  coupons   Coupon[]
+}
+
+
+model Category {
+  id          String    @id @default(uuid())
+  branch_id   String
+  branch      Branch    @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  name        String    @db.VarChar(100)
+  description String?   @db.Text
+  sort_order  Int       @default(autoincrement()) @db.Integer
+  is_active   Boolean   @default(true) @db.Boolean
+  created_at  DateTime  @default(now()) @db.Date
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? @db.Date
+
+  products Product[]
+  coupons  CouponOnCategory[]
+}
+
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FINAL_PRICE
+}
+
+model Coupon {
+  id                       String       @id @default(uuid())
+  business_id              String
+  business                 Business     @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  code                     String       @db.VarChar(50)
+  discount_type            DiscountType @default(PERCENTAGE)
+  discount_value           Decimal      @db.Decimal(10, 2)
+  min_order_amount         Decimal?     @db.Decimal(10, 2)
+  max_discount_amount      Decimal?     @db.Decimal(10, 2)
+  usage_limit              Int?         @db.Integer
+  usage_count              Int          @default(0) @db.Integer
+  usage_limit_per_customer Int?         @db.Integer
+  is_stackable             Boolean      @default(false) @db.Boolean
+  start_date               DateTime     @db.Date
+  end_date                 DateTime?    @db.Date
+  created_at               DateTime     @default(now()) @db.Date
+  updated_at               DateTime     @updatedAt
+  deleted_at               DateTime?    @db.Date
+  is_active                Boolean      @default(true) @db.Boolean
+
+  branches       CouponForBranch[]
+  categories     CouponOnCategory[]
+  products       CouponOnProduct[]
+  variants       CouponOnVariant[]
+  customerUsages CouponCustomerUsage[]
+  orders         CouponForOrder[]
+}
+
+
+model CouponCustomerUsage {
+  id          String   @id @default(uuid())
+  coupon_id   String
+  coupon      Coupon   @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  customer_id String
+  customer    User     @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  usage_count Int      @default(1) @db.Integer
+  first_used  DateTime @default(now()) @db.Date
+  last_used   DateTime @default(now()) @db.Date
+}
+
+
+model CouponForBranch {
+  id         String   @id @default(uuid())
+  coupon_id  String
+  coupon     Coupon   @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  branch_id  String
+  branch     Branch   @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now()) @db.Date
+}
+
+
+model CouponForOrder {
+  id               String   @id @default(uuid())
+  coupon_id        String
+  coupon           Coupon   @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  order_id         String
+  order            Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  discount_applied Decimal  @db.Decimal(10, 2)
+  created_at       DateTime @default(now()) @db.Date
+}
+
+
+model CouponOnCategory {
+  id          String   @id @default(uuid())
+  coupon_id   String
+  coupon      Coupon   @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  category_id String
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  created_at  DateTime @default(now()) @db.Date
+}
+
+
+model CouponOnProduct {
+  id         String   @id @default(uuid())
+  coupon_id  String
+  coupon     Coupon   @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  product_id String
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now()) @db.Date
+}
+
+
+model CouponOnVariant {
+  id         String           @id @default(uuid())
+  coupon_id  String
+  coupon     Coupon           @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  variant_id String
+  variant    ProductVariation @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  created_at DateTime         @default(now()) @db.Date
+}
+
+
+enum AuthProvider {
+  GOOGLE
+  LOCAL
+}
+
+model Credential {
+  id                    String       @id @default(uuid())
+  provider              AuthProvider
+  external_id           String?      @db.VarChar(255)
+  user_id               String
+  user                  User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  email                 String       @db.VarChar(150)
+  password              String       @db.VarChar(70)
+  last_login            DateTime?    @db.Date
+  failed_login_attempts Int          @default(0) @db.Integer
+  locked_until          DateTime?    @db.Date
+  recovery_token        String?      @db.VarChar(255)
+  token_expires_at      DateTime?    @db.Date
+  created_at            DateTime     @default(now()) @db.Date
+  updated_at            DateTime     @updatedAt
+  is_active             Boolean      @default(true) @db.Boolean
+
+  @@unique([provider, external_id])
+}
+
+
+enum EmployeeRole {
+  OWNER
+  MANAGER
+  CASHIER
+  DELIVERY
+}
+
+model Employee {
+  id           String       @id @default(uuid())
+  user_id      String
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  business_id  String
+  business     Business     @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  role         EmployeeRole
+  created_at   DateTime     @default(now()) @db.Date
+  updated_at   DateTime     @updatedAt
+  deleted_at   DateTime?    @db.Date
+  is_active    Boolean      @default(true) @db.Boolean
+  is_suspended Boolean      @default(false) @db.Boolean
+
+  branches        EmployeesOnBranches[]
+  stockMovements  StockMovement[]
+  ordersProcessed Order[]               @relation("OrderProcessor")
+  ordersDelivered Order[]               @relation("OrderDeliverer")
+  ordersHistory   OrderStatusHistory[]
+}
+
+
+model EmployeesOnBranches {
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  branch_id   String
+  branch      Branch   @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  created_at  DateTime @default(now()) @db.Date
+
+  @@id([employee_id, branch_id])
+}
+
+
+model Ingredient {
+  id              String    @id @default(uuid())
+  name            String    @db.VarChar(80)
+  stock_quantity  Decimal   @db.Decimal(10, 2)
+  unit            String    @db.VarChar(25)
+  min_stock_alert Decimal   @db.Decimal(10, 2)
+  created_at      DateTime  @default(now()) @db.Date
+  updated_at      DateTime  @updatedAt
+  deleted_at      DateTime? @db.Date
+  is_active       Boolean   @default(true) @db.Boolean
+
+  recipes        Recipe[]
+  stockMovements StockMovement[]
+}
+
+
+model ModifierOption {
+  id               String          @id @default(uuid())
+  modifier_id      String
+  modifier         ProductModifier @relation(fields: [modifier_id], references: [id], onDelete: Cascade)
+  name             String          @db.VarChar(100)
+  description      String?         @db.Text
+  price_adjustment Decimal         @db.Decimal(10, 2)
+  is_default       Boolean         @default(false) @db.Boolean
+  sort_order       Int             @default(autoincrement()) @db.Integer
+  created_at       DateTime        @default(now()) @db.Date
+  updated_at       DateTime        @updatedAt
+  deleted_at       DateTime?       @db.Date
+  is_active        Boolean         @default(true) @db.Boolean
+
+  recipes    Recipe[]            @relation(map: "Recipe_modifier_fkey")
+  orderItems OrderItemModifier[]
+}
+
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY_FOR_DELIVERY
+  DELIVERED
+  CANCELLED_BY_CUSTOMER
+  CANCELLED_BY_BUSINESS
+  CANCELLED_BY_SYSTEM
+  CANCELLED_BY_DELIVERY
+  CANCELLED_BY_OTHER
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  REFUNDED
+  CANCELLED
+}
+
+model Order {
+  id                            String        @id @default(uuid())
+  customer_id                   String?
+  customer                      User?         @relation(fields: [customer_id], references: [id], onDelete: SetNull)
+  branch_id                     String?
+  branch                        Branch?       @relation(fields: [branch_id], references: [id], onDelete: SetNull)
+  delivery_address_id           String?
+  delivery_address              UserAddress?  @relation(fields: [delivery_address_id], references: [id], onDelete: SetNull)
+  processed_by_id               String
+  processed_by                  Employee      @relation("OrderProcessor", fields: [processed_by_id], references: [id])
+  delivery_by_id                String?
+  delivery_by                   Employee?     @relation("OrderDeliverer", fields: [delivery_by_id], references: [id])
+  items                         OrderItem[]
+  status                        OrderStatus   @default(PENDING)
+  is_delivery                   Boolean       @db.Boolean
+  sub_total                     Decimal       @db.Decimal(10, 2)
+  discount_amount               Decimal?      @db.Decimal(10, 2)
+  delivery_fee                  Decimal?      @db.Decimal(10, 2)
+  total_amount                  Decimal       @db.Decimal(10, 2)
+  cash_amount                   Decimal?      @db.Decimal(10, 2)
+  change_amount                 Decimal?      @db.Decimal(10, 2)
+  estimated_preparation_minutes Int           @db.Integer
+  estimated_delivery_minutes    Int           @db.Integer
+  estimated_ready_time          DateTime      @db.Time()
+  customer_notes                String?       @db.Text
+  payment_method                PaymentMethod
+  payment_status                PaymentStatus @default(PENDING)
+  created_at                    DateTime      @default(now()) @db.Date
+  updated_at                    DateTime      @updatedAt
+  deleted_at                    DateTime?     @db.Date
+  is_active                     Boolean       @default(true) @db.Boolean
+
+  coupons       CouponForOrder[]
+  statusHistory OrderStatusHistory[]
+}
+
+
+model OrderItem {
+  id                   String              @id @default(uuid())
+  order_id             String
+  order                Order               @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product_id           String?
+  product              Product?            @relation(fields: [product_id], references: [id], onDelete: SetNull)
+  variation_id         String?
+  variation            ProductVariation?   @relation(fields: [variation_id], references: [id], onDelete: SetNull)
+  modifiers            OrderItemModifier[]
+  quantity             Int                 @db.Integer
+  unit_price           Decimal             @db.Decimal(10, 2)
+  total_price          Decimal             @db.Decimal(10, 2)
+  special_instructions String?             @db.Text
+}
+
+
+model OrderItemModifier {
+  id            String          @id @default(uuid())
+  order_item_id String
+  order_item    OrderItem       @relation(fields: [order_item_id], references: [id], onDelete: Cascade)
+  modifier_id   String?
+  modifier      ModifierOption? @relation(fields: [modifier_id], references: [id], onDelete: SetNull)
+  quantity      Int             @db.Integer
+  unit_price    Decimal         @db.Decimal(10, 2)
+  total_price   Decimal         @db.Decimal(10, 2)
+}
+
+
+model OrderStatusHistory {
+  id          String      @id @default(uuid())
+  order_id    String
+  order       Order       @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  employee_id String?
+  employee    Employee?   @relation(fields: [employee_id], references: [id], onDelete: SetNull)
+  status      OrderStatus
+  notes       String?     @db.Text
+  created_at  DateTime    @default(now()) @db.Date
+}
+
+
+model Product {
+  id             String    @id @default(uuid())
+  category_id    String
+  category       Category  @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  name           String    @db.VarChar(100)
+  description    String?   @db.Text
+  image          Json?     @db.Json
+  base_price     Decimal?  @db.Decimal(10, 2)
+  has_variations Boolean   @default(false) @db.Boolean
+  sort_order     Int       @default(autoincrement()) @db.Integer
+  created_at     DateTime  @default(now()) @db.Date
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime? @db.Date
+  is_active      Boolean   @default(true) @db.Boolean
+
+  productVariations ProductVariation[]
+  productModifiers  ProductModifier[]
+  recipes           Recipe[]           @relation(map: "Recipe_product_fkey")
+  coupons           CouponOnProduct[]
+  orderItems        OrderItem[]
+}
+
+
+model ProductModifier {
+  id             String    @id @default(uuid())
+  product_id     String
+  product        Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  name           String    @db.VarChar(100)
+  description    String?   @db.Text
+  is_required    Boolean   @default(false) @db.Boolean
+  allow_multiple Boolean   @default(false) @db.Boolean
+  sort_order     Int       @default(autoincrement()) @db.Integer
+  created_at     DateTime  @default(now()) @db.Date
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime? @db.Date
+  is_active      Boolean   @default(true) @db.Boolean
+
+  modifierOptions ModifierOption[]
+}
+
+
+model ProductVariation {
+  id          String    @id @default(uuid())
+  product_id  String
+  product     Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  name        String    @db.VarChar(100)
+  description String?   @db.Text
+  price       Decimal   @db.Decimal(10, 2)
+  sort_order  Int       @default(autoincrement()) @db.Integer
+  created_at  DateTime  @default(now()) @db.Date
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? @db.Date
+  is_active   Boolean   @default(true) @db.Boolean
+
+  recipes    Recipe[]          @relation(map: "Recipe_variation_fkey")
+  coupons    CouponOnVariant[]
+  orderItems OrderItem[]
+}
+
+
+enum RecipeType {
+  PRODUCT
+  VARIATION
+  MODIFIER_OPTION
+}
+
+model Recipe {
+  id                String            @id @default(uuid())
+  recipe_type       RecipeType
+  reference_id      String
+  product           Product?          @relation(fields: [reference_id], references: [id], onDelete: Cascade, map: "Recipe_product_fkey")
+  product_variation ProductVariation? @relation(fields: [reference_id], references: [id], onDelete: Cascade, map: "Recipe_variation_fkey")
+  modifier_option   ModifierOption?   @relation(fields: [reference_id], references: [id], onDelete: Cascade, map: "Recipe_modifier_fkey")
+  ingredient_id     String
+  ingredient        Ingredient        @relation(fields: [ingredient_id], references: [id], onDelete: Cascade)
+  quantity          Decimal           @db.Decimal(10, 2)
+  created_at        DateTime          @default(now()) @db.Date
+  updated_at        DateTime          @updatedAt
+  deleted_at        DateTime?         @db.Date
+  is_active         Boolean           @default(true) @db.Boolean
+
+  @@unique([recipe_type, reference_id, ingredient_id])
+  @@index([recipe_type, reference_id, ingredient_id])
+}
+
+
+model Schedule {
+  id           String    @id @default(uuid())
+  branch_id    String
+  branch       Branch    @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  days_of_week Int[]     @db.Integer
+  opening_time DateTime  @db.Time()
+  closing_time DateTime  @db.Time()
+  created_at   DateTime  @default(now()) @db.Date
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime? @db.Date
+  is_active    Boolean   @default(true) @db.Boolean
+}
+
+
+model SpecialDate {
+  id           String    @id @default(uuid())
+  branch_id    String
+  branch       Branch    @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  name         String    @db.VarChar(100)
+  description  String?   @db.Text
+  start_date   DateTime  @db.Date
+  end_date     DateTime? @db.Date
+  is_closed    Boolean   @db.Boolean
+  opening_time DateTime? @db.Time()
+  closing_time DateTime? @db.Time()
+  created_at   DateTime  @default(now()) @db.Date
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime? @db.Date
+  is_active    Boolean   @db.Boolean
+}
+
+
+enum StockMovementType {
+  INVENTORY_ADJUSTMENT
+  PURCHASE_ORDER
+  SALES_ORDER
+  TRANSFER
+  WASTE
+  DAMAGE
+  RETURN
+}
+
+model StockMovement {
+  id             String            @id @default(uuid())
+  branch_id      String
+  branch         Branch            @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  ingredient_id  String
+  ingredient     Ingredient        @relation(fields: [ingredient_id], references: [id], onDelete: Cascade)
+  movement_type  StockMovementType
+  quantity       Decimal           @db.Decimal(10, 2)
+  previous_stock Decimal           @db.Decimal(10, 2)
+  new_stock      Decimal           @db.Decimal(10, 2)
+  reason         String?           @db.Text
+  employee_id    String?
+  employee       Employee?         @relation(fields: [employee_id], references: [id], onDelete: SetNull)
+  created_at     DateTime          @default(now()) @db.Date
+  updated_at     DateTime          @updatedAt
+  deleted_at     DateTime?         @db.Date
+  is_active      Boolean           @default(true) @db.Boolean
+
+  @@index([branch_id, ingredient_id, created_at])
+}
+
+
+enum UserRole {
+  ADMIN
+  BUSINESS
+  CUSTOMER
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique @db.VarChar(150)
+  name         String    @db.VarChar(80)
+  phone        String    @unique @db.VarChar(15)
+  role         UserRole  @default(CUSTOMER)
+  created_at   DateTime  @default(now()) @db.Date
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime? @db.Date
+  is_active    Boolean   @default(true) @db.Boolean
+  is_suspended Boolean   @default(false) @db.Boolean
+
+  credentials  Credential[]
+  address      UserAddress[]
+  business     Business[]
+  employee     Employee[]
+  couponUsages CouponCustomerUsage[]
+  orders       Order[]
+}
+
+
+model UserAddress {
+  id         String   @id @default(uuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  adress_id  String
+  adress     Adress   @relation(fields: [adress_id], references: [id], onDelete: Cascade)
+  alias      String   @db.VarChar(100)
+  reference  String?  @db.Text
+  is_default Boolean  @default(false) @db.Boolean
+  created_at DateTime @default(now()) @db.Date
+  updated_at DateTime @updatedAt
+  is_active  Boolean  @default(true) @db.Boolean
+
+  orders Order[]
 }

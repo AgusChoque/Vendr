@@ -12,7 +12,8 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "prisma:generate": "prisma generate",
+    "prisma:merge": "prisma-merge -b ./src/modules/prisma/schema.prisma -o ./prisma/schema.prisma",
+    "prisma:generate": "npm run prisma:merge && prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "lint": "eslint \"{src,apps,libs,test}/**/*.{ts,prisma}\" --fix",
     "test": "jest",
@@ -31,6 +32,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "prisma-merge": "^0.2.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

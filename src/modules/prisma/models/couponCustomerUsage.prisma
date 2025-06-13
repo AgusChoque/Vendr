@@ -1,0 +1,10 @@
+model CouponCustomerUsage {
+  id          String   @id @default(uuid())
+  coupon_id   String
+  coupon      Coupon   @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  customer_id String
+  customer    User     @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  usage_count Int      @default(1) @db.Integer
+  first_used  DateTime @default(now()) @db.Date
+  last_used   DateTime @default(now()) @db.Date
+}
