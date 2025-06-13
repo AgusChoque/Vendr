@@ -17,9 +17,9 @@ model User {
   is_suspended Boolean   @default(false) @db.Boolean
 
   credentials  Credential[]
-  address      UserAddress[]
-  business     Business[]
-  employee     Employee[]
+  addresses    UserAddress[]
+  businesses   Business[]
+  employeed    Employee[]
   couponUsages CouponCustomerUsage[]
   orders       Order[]
 }
