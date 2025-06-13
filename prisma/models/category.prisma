@@ -1,0 +1,15 @@
+model Category {
+  id          String    @id @default(uuid())
+  branch_id   String    @db.Uuid
+  branch      Branch    @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  name        String    @db.VarChar(100)
+  description String?   @db.Citext
+  sort_order  Int       @default(autoincrement()) @db.Integer
+  is_active   Boolean   @default(true) @db.Boolean
+  created_at  DateTime  @default(now()) @db.Date
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? @db.Date
+
+  products Product[]
+  coupons  CouponOnCategory[]
+}

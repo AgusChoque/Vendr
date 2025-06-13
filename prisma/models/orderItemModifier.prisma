@@ -1,0 +1,10 @@
+model OrderItemModifier {
+  id            String          @id @default(uuid())
+  order_item_id String          @db.Uuid
+  order_item    OrderItem       @relation(fields: [order_item_id], references: [id], onDelete: Cascade)
+  modifier_id   String?         @db.Uuid
+  modifier      ModifierOption? @relation(fields: [modifier_id], references: [id], onDelete: SetNull)
+  quantity      Int             @db.Integer
+  unit_price    Decimal         @db.Decimal(10, 2)
+  total_price   Decimal         @db.Decimal(10, 2)
+}

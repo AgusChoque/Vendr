@@ -9,35 +9,3 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-
-enum AuthProvider {
-  GOOGLE
-  LOCAL
-}
-
-model Credential {
-  id                    String       @id @default("'credential-' || gen_random_uuid()")
-  provider              AuthProvider
-  external_id           String
-  email                 String
-  password              String
-  last_login            DateTime
-  failed_login_attempts Int
-  locked_until          DateTime?
-  recovery_token        String?
-  token_expires_at      DateTime?
-  created_at            DateTime     @default(now())
-  updated_at            DateTime     @updatedAt
-  is_active             Boolean      @default(true)
-}
-
-
-model User {
-    id String @id @default("'user-' || gen_random_uuid()")
-    name String
-    phone String
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-    is_active Boolean @default(true)
-}

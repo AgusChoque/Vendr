@@ -1,0 +1,9 @@
+model EmployeesOnBranches {
+  employee_id String   @db.Uuid
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  branch_id   String   @db.Uuid
+  branch      Branch   @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  created_at  DateTime @default(now()) @db.Date
+
+  @@id([employee_id, branch_id])
+}

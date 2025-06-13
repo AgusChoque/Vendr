@@ -1,0 +1,30 @@
+enum StockMovementType {
+  INVENTORY_ADJUSTMENT
+  PURCHASE_ORDER
+  SALES_ORDER
+  TRANSFER
+  WASTE
+  DAMAGE
+  RETURN
+}
+
+model StockMovement {
+  id             String            @id @default(uuid())
+  branch_id      String            @db.Uuid
+  branch         Branch            @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  ingredient_id  String            @db.Uuid
+  ingredient     Ingredient        @relation(fields: [ingredient_id], references: [id], onDelete: Cascade)
+  movement_type  StockMovementType
+  quantity       Decimal           @db.Decimal(10, 2)
+  previous_stock Decimal           @db.Decimal(10, 2)
+  new_stock      Decimal           @db.Decimal(10, 2)
+  reason         String?           @db.Text
+  employee_id    String?           @db.Uuid
+  employee       Employee?         @relation(fields: [employee_id], references: [id], onDelete: SetNull)
+  created_at     DateTime          @default(now()) @db.Date
+  updated_at     DateTime          @updatedAt
+  deleted_at     DateTime?         @db.Date
+  is_active      Boolean           @default(true) @db.Boolean
+
+  @@index([branch_id, ingredient_id, created_at])
+}

@@ -1,0 +1,21 @@
+model Business {
+  id                 String    @id @default(uuid())
+  owner_id           String    @db.Uuid
+  owner              User      @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  adress_id          String?   @db.Uuid
+  adress             Adress?   @relation(fields: [adress_id], references: [id], onDelete: SetNull)
+  name               String    @db.VarChar(100)
+  description        String?   @db.Citext
+  phone              String?   @db.VarChar(15)
+  logo               Json?     @db.Json
+  delivery_available Boolean   @default(false) @db.Boolean
+  created_at         DateTime  @default(now()) @db.Date
+  updated_at         DateTime  @updatedAt
+  deleted_at         DateTime? @db.Date
+  is_active          Boolean   @default(true) @db.Boolean
+  is_suspended       Boolean   @default(false) @db.Boolean
+
+  employees Employee[]
+  branches  Branch[]
+  coupons   Coupon[]
+}
