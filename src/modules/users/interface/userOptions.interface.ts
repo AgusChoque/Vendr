@@ -1,5 +1,7 @@
+import { Prisma } from 'generated/prisma';
+
 export interface IUserOptions {
-  include?: {
-    business?: boolean;
-  };
+  include?: Prisma.UserInclude;
+  select?: Prisma.UserSelect;
+  omit?: Prisma.UserOmit;
 }
