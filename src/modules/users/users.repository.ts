@@ -24,4 +24,8 @@ export class UsersRepository {
   async findUserByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({ where: { email } });
   }
+
+  async createUser(user: Prisma.UserCreateInput): Promise<User> {
+    return this.prisma.user.create({ data: user });
+  }
 }
