@@ -8,20 +8,9 @@ import {
   Validate,
 } from 'class-validator';
 import { MatchPassword } from 'src/modules/auth/decorators/matchPassword.decorator';
+import { LoginDto } from 'src/modules/auth/dtos/login.dto';
 
-export class RegisterUserDto {
-  @IsNotEmpty()
-  @IsEmail()
-  @MaxLength(60)
-  email: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(6)
-  @MaxLength(25)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&]{6,25}$/)
-  password: string;
-
+export class RegisterUserDto extends LoginDto {
   @IsNotEmpty()
   @Validate(MatchPassword, ['password'])
   confirmPassword: string;
