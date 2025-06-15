@@ -207,7 +207,7 @@ model Credential {
   user_id               String
   user                  User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
   email                 String       @db.VarChar(60)
-  password              String       @db.VarChar(70)
+  password              String?      @db.VarChar(70)
   last_login            DateTime?    @db.Date
   failed_login_attempts Int          @default(0) @db.Integer
   locked_until          DateTime?    @db.Date

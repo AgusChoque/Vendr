@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Credential, Prisma } from 'generated/prisma';
+import { AuthProvider, Credential, Prisma } from 'generated/prisma';
 
 @Injectable()
 export class CredentialRepository {
@@ -8,5 +8,9 @@ export class CredentialRepository {
 
   async createCredential(credential: Prisma.CredentialCreateInput): Promise<Credential> {
     return this.prisma.credential.create({ data: credential });
+  }
+
+  async findCredentialByEmail(email: string, provider: AuthProvider): Promise<Credential | null> {
+    return this.prisma.credential.findFirst({ where: { email, provider } });
   }
 }
